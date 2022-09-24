@@ -1,6 +1,3 @@
-@file:Suppress("UNUSED_VARIABLE")
-
-import plugins.ShadowJar
 import java.net.URL
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
@@ -13,12 +10,6 @@ plugins {
 
         // Git Repo Information
         id("org.ajoberstar.grgit") version GRGIT
-
-        // Token Replacement
-        id("net.kyori.blossom") version BLOSSOM
-
-        // Dependency Shading
-        id("com.github.johnrengelman.shadow") version SHADOW
 
         // Code Quality
         id("org.jlleitschuh.gradle.ktlint") version KTLINT
@@ -37,18 +28,9 @@ plugins {
 val targetVersion = "1.8"
 // What JVM version this project is written in
 val sourceVersion = "1.8"
-// Which source-sets to add.
-val additionalSourceSets: Array<String> = arrayOf(
-    "api"
-)
-
-// Handle configurations lower down
-configurations()
 
 // Project Dependencies
 dependencies {
-    val include by configurations
-
     with(Dependencies) {
         kotlinModules.forEach {
             implementation("org.jetbrains.kotlin", "kotlin-$it", KOTLIN)
@@ -65,51 +47,17 @@ repositories {
     Repositories.mavenUrls.forEach(::maven)
 }
 
-fun Project.configurations() {
-    // Add `include` configuration for ShadowJar
-    configurations {
-        val include by creating
-        // don't include in maven pom
-        compileOnly.get().extendsFrom(include)
-        // but also work in tests
-        testImplementation.get().extendsFrom(include)
-
-        // Makes all the configurations use the same Kotlin version.
-        all {
-            resolutionStrategy.eachDependency {
-                if (requested.group == "org.jetbrains.kotlin") {
-                    useVersion(Dependencies.KOTLIN)
-                }
-            }
+// Makes all the configurations use the same Kotlin version.
+configurations.all {
+    resolutionStrategy.eachDependency {
+        if (requested.group == "org.jetbrains.kotlin") {
+            useVersion(Dependencies.KOTLIN)
         }
     }
 }
 
 group = Coordinates.GROUP
 version = Coordinates.VERSION
-
-// Generate the additional source sets
-additionalSourceSets.forEach(::createSourceSet)
-
-fun createSourceSet(name: String, sourceRoot: String = "src/$name") {
-    sourceSets {
-        val main by sourceSets
-        val test by sourceSets
-
-        val sourceSet = create(name) {
-            java.srcDir("$sourceRoot/kotlin")
-            resources.srcDir("$sourceRoot/resources")
-
-            this.compileClasspath += main.compileClasspath
-            this.runtimeClasspath += main.runtimeClasspath
-        }
-
-        arrayOf(main, test).forEach {
-            it.compileClasspath += sourceSet.output
-            it.runtimeClasspath += sourceSet.output
-        }
-    }
-}
 
 // The latest commit ID
 val buildRevision: String = grgit.log()[0].id ?: "dev"
@@ -120,17 +68,6 @@ ktlint {
         "no-wildcard-imports",
         "filename"
     )
-}
-
-blossom {
-    mapOf(
-        "project.name" to Coordinates.NAME,
-        "project.version" to Coordinates.VERSION,
-        "project.desc" to Coordinates.DESC,
-        "project.rev" to buildRevision,
-    ).mapKeys { "@${it.key}@" }.forEach { (key, value) ->
-        replaceToken(key, value)
-    }
 }
 
 tasks {
@@ -239,23 +176,7 @@ tasks {
             }
         }
 
-        additionalSourceSets.forEach {
-            from(sourceSets[it].output)
-        }
         from("LICENSE")
-    }
-
-    additionalSourceSets.forEach {
-        // Custom artifact, only including the output of
-        // the source set and the LICENSE file.
-        create(it + "Jar", Jar::class) {
-            group = "build"
-
-            archiveClassifier.set(it)
-            from(sourceSets[it].output)
-
-            from("LICENSE")
-        }
     }
 
     // Source artifact, including everything the 'main' does but not compiled.
@@ -264,10 +185,6 @@ tasks {
 
         archiveClassifier.set("sources")
         from(sourceSets["main"].allSource)
-
-        additionalSourceSets.forEach {
-            from(sourceSets[it].allSource)
-        }
 
         this.manifest.from(jar.get().manifest)
 
@@ -285,25 +202,6 @@ tasks {
         from(dokkaHtml)
 
         from("LICENSE")
-    }
-
-    // Configure ShadowJar
-    shadowJar {
-        val include by project.configurations
-
-        this.configurations.clear()
-        this.configurations += include
-
-        // Add the API source set to the ShadowJar
-        additionalSourceSets.forEach {
-            from(sourceSets[it].output)
-        }
-        from("LICENSE")
-
-        this.archiveClassifier.set(ShadowJar.classifier)
-        this.manifest.inheritFrom(jar.get().manifest)
-
-        ShadowJar.packageRemappings.forEach(this::relocate)
     }
 
     afterEvaluate {
@@ -331,16 +229,11 @@ tasks {
 val defaultArtifactTasks = arrayOf(
     tasks["sourcesJar"],
     tasks["javadocJar"]
-).also { arr ->
-    additionalSourceSets.forEach { set ->
-        arr.plus(tasks[set + "Jar"])
-    }
-}
+)
 
 // Declare the artifacts
 artifacts {
     defaultArtifactTasks.forEach(::archives)
-    archives(tasks.shadowJar)
 }
 
 publishing.publications {
