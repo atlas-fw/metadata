@@ -6,7 +6,7 @@ plugins {
     with(Plugins) {
         // Language Plugins
         `java-library`
-        kotlin("jvm") version KOTLIN
+        id("org.jetbrains.kotlin.jvm") version KOTLIN
 
         // Git Repo Information
         id("org.ajoberstar.grgit") version GRGIT
@@ -28,13 +28,22 @@ plugins {
 val targetVersion = "1.8"
 // What JVM version this project is written in
 val sourceVersion = "1.8"
+// Which source-sets to add.
+val additionalSourceSets: Array<String> = arrayOf(
+    "api"
+)
 
 // Project Dependencies
 dependencies {
     with(Dependencies) {
-        kotlinModules.forEach {
-            implementation("org.jetbrains.kotlin", "kotlin-$it", KOTLIN)
+        kotlinModules.forEach { module ->
+            implementation("org.jetbrains.kotlin", "kotlin-$module", KOTLIN)
         }
+
+        implementation("com.vdurmont", "semver4j", "3.1.0")
+
+        dokkaHtmlPlugin("org.jetbrains.dokka", "kotlin-as-java-plugin", Plugins.DOKKA)
+
         testImplementation("org.jetbrains.kotlin", "kotlin-test", KOTLIN)
     }
 }
@@ -47,17 +56,31 @@ repositories {
     Repositories.mavenUrls.forEach(::maven)
 }
 
-// Makes all the configurations use the same Kotlin version.
-configurations.all {
-    resolutionStrategy.eachDependency {
-        if (requested.group == "org.jetbrains.kotlin") {
-            useVersion(Dependencies.KOTLIN)
+group = Coordinates.GROUP
+version = Coordinates.VERSION
+
+// Generate the additional source sets
+additionalSourceSets.forEach(::createSourceSet)
+
+fun createSourceSet(name: String, sourceRoot: String = "src/$name") {
+    sourceSets {
+        val main by sourceSets
+        val test by sourceSets
+
+        val sourceSet = create(name) {
+            java.srcDir("$sourceRoot/kotlin")
+            resources.srcDir("$sourceRoot/resources")
+
+            this.compileClasspath += main.compileClasspath
+            this.runtimeClasspath += main.runtimeClasspath
+        }
+
+        arrayOf(main, test).forEach {
+            it.compileClasspath += sourceSet.output
+            it.runtimeClasspath += sourceSet.output
         }
     }
 }
-
-group = Coordinates.GROUP
-version = Coordinates.VERSION
 
 // The latest commit ID
 val buildRevision: String = grgit.log()[0].id ?: "dev"
@@ -76,14 +99,6 @@ tasks {
     }
 
     // Configure JVM versions
-    compileKotlin {
-        kotlinOptions {
-            jvmTarget = targetVersion
-            freeCompilerArgs = listOf(
-                "-opt-in=kotlin.RequiresOptIn",
-            )
-        }
-    }
     compileJava {
         targetCompatibility = targetVersion
         sourceCompatibility = sourceVersion
@@ -176,7 +191,23 @@ tasks {
             }
         }
 
+        additionalSourceSets.forEach {
+            from(sourceSets[it].output)
+        }
         from("LICENSE")
+    }
+
+    additionalSourceSets.forEach {
+        // Custom artifact, only including the output of
+        // the source set and the LICENSE file.
+        create(sourceSets[it].jarTaskName, Jar::class) {
+            group = "build"
+
+            archiveClassifier.set(it)
+            from(sourceSets[it].output)
+
+            from("LICENSE")
+        }
     }
 
     // Source artifact, including everything the 'main' does but not compiled.
@@ -185,6 +216,10 @@ tasks {
 
         archiveClassifier.set("sources")
         from(sourceSets["main"].allSource)
+
+        additionalSourceSets.forEach {
+            from(sourceSets[it].allSource)
+        }
 
         this.manifest.from(jar.get().manifest)
 
@@ -229,7 +264,11 @@ tasks {
 val defaultArtifactTasks = arrayOf(
     tasks["sourcesJar"],
     tasks["javadocJar"]
-)
+).also { arr ->
+    additionalSourceSets.forEach { set ->
+        arr.plus(tasks[sourceSets[set].jarTaskName])
+    }
+}
 
 // Declare the artifacts
 artifacts {
