@@ -1,5 +1,7 @@
 package me.xtrm.atlas.metadata.api
 
+import kotlin.reflect.KClass
+
 /**
  * @author xtrm
  * @since 0.0.1
@@ -28,3 +30,10 @@ inline fun <reified T> ParserService.findFor(): Parser<T>? =
 @Throws(MissingParserException::class)
 inline fun <reified T> ParserService.getFor(): Parser<T> =
     this.getFor(T::class.java)
+
+fun <T : Any> ParserService.findFor(clazz: KClass<T>): Parser<T>? =
+    this.findFor(clazz.java)
+
+@Throws(MissingParserException::class)
+fun <T : Any> ParserService.getFor(clazz: KClass<T>): Parser<T> =
+    this.getFor(clazz.java)

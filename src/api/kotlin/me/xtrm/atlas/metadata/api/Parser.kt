@@ -9,10 +9,10 @@ import java.io.InputStream
  * @since 0.0.1
  */
 fun interface Parser<T> {
-    @Throws(ParseMetadataException::class)
+    @Throws(ParserException::class)
     fun from(file: File): T =
         from(FileInputStream(file))
 
-    @Throws(ParseMetadataException::class)
+    @Throws(ParserException::class)
     fun from(stream: InputStream): T
 }

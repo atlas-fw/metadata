@@ -1,11 +1,14 @@
 package me.xtrm.atlas.metadata
 
-import me.xtrm.atlas.metadata.api.MissingParserException
+import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
+import me.xtrm.atlas.metadata.api.ParseError
 import me.xtrm.atlas.metadata.api.Parser
+import me.xtrm.atlas.metadata.api.ParserException
 import me.xtrm.atlas.metadata.api.ParserService
 import me.xtrm.atlas.metadata.api.mod.ModMetadata
 import me.xtrm.atlas.metadata.mod.ModMetadataV0Parser
-import java.io.InputStreamReader
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 
 /**
  * !TODO
@@ -13,6 +16,7 @@ import java.io.InputStreamReader
  * @author xtrm
  * @since 0.0.1
  */
+@Suppress("UNCHECKED_CAST")
 object MetadataParserService : ParserService {
     override val parserRegistry: Map<Class<*>, Map<Int, Parser<*>>> =
         buildMap {
@@ -26,14 +30,24 @@ object MetadataParserService : ParserService {
             ?: return null
 
         return Parser {
-            val reader = it.reader()
-            val map: Map<String, Any> = emptyMap()
+            val baos = ByteArrayOutputStream()
+            it.copyTo(baos)
+            val bytearr = baos.toByteArray()
+
+            val map = jacksonMapper.readValue(
+                bytearr,
+                Map::class.java
+            ) as Map<*, *>
             val schemaVersion = (map["schemaVersion"] as? Int) ?: 0
-            val parser = parsers[schemaVersion]
-                ?: throw MissingParserException(clazz, schemaVersion)
-            it.close()
+            val parser = parsers[schemaVersion] as? Parser<T>
+                ?: throw ParserException(ParseError.UNKNOWN_SCHEMA, Exception("$schemaVersion"))
 
 
+            try {
+                parser.from(ByteArrayInputStream(bytearr))
+            } catch (exception: MissingKotlinParameterException) {
+                throw ParserException(ParseError.MAPPER_EXCEPTION, exception)
+            }
         }
     }
 }

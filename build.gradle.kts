@@ -41,6 +41,7 @@ dependencies {
         }
 
         implementation("com.vdurmont", "semver4j", "3.1.0")
+        implementation("com.fasterxml.jackson.module", "jackson-module-kotlin", "2.13.4")
 
         dokkaHtmlPlugin("org.jetbrains.dokka", "kotlin-as-java-plugin", Plugins.DOKKA)
 

@@ -5,8 +5,7 @@ package me.xtrm.atlas.metadata.api
  * @since 0.0.1
  */
 class MissingParserException : Exception {
-    constructor(message: String) : super(message)
-    constructor(message: String, cause: Throwable) : super(message, cause)
+    private constructor(message: String) : super(message)
 
     constructor(clazz: Class<*>) :
         this("Missing registered parser for `${clazz.simpleName}`")
