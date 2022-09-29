@@ -1,29 +1,31 @@
 package me.xtrm.atlas.metadata.api.mod
 
+import java.util.UUID
+
 /**
- * Represents the author of a mod.
+ * A mod's author object.
  *
  * @author xtrm
  * @since 0.0.1
  */
 interface ModAuthor {
     /**
-     * The name of the author.
+     * The author's name.
      */
     val name: String
 
     /**
-     * The link to the author's Git profile.
+     * The link to the author's website.
      */
-    val gitProfile: String?
+    val website: String?
 
     /**
-     * The email address of the author.
+     * The author's e-mail address.
      */
     val mail: String?
 
     /**
-     * The Minecraft profile UUID of the author, as a [String].
+     * The Minecraft profile UUID of the author.
      */
-    val uuid: String?
+    val uuid: UUID?
 }

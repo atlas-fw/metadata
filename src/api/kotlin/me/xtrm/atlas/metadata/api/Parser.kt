@@ -10,9 +10,8 @@ import java.io.InputStream
  */
 fun interface Parser<T> {
     @Throws(ParserException::class)
-    fun from(file: File): T =
-        from(FileInputStream(file))
+    fun from(stream: InputStream): T
 
     @Throws(ParserException::class)
-    fun from(stream: InputStream): T
+    fun from(file: File): T = from(FileInputStream(file))
 }

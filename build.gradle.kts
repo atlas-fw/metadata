@@ -29,9 +29,7 @@ val targetVersion = "1.8"
 // What JVM version this project is written in
 val sourceVersion = "1.8"
 // Which source-sets to add.
-val additionalSourceSets: Array<String> = arrayOf(
-    "api"
-)
+val additionalSourceSets: Array<String> = arrayOf("api")
 
 // Project Dependencies
 dependencies {

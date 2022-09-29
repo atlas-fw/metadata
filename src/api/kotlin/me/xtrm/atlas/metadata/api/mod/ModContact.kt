@@ -31,5 +31,4 @@ interface ModContact {
      * Extra links/information destined to user-consumption.
      */
     val extras: Map<String, String>
-        get() = emptyMap()
 }

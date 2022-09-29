@@ -1,7 +1,7 @@
 package me.xtrm.atlas.metadata.api.mod.dependency
 
 /**
- * Dependency type.
+ * A dependency's type.
  *
  * @author xtrm
  * @since 0.0.1
@@ -14,5 +14,5 @@ enum class DependencyType(
     DEPENDS("depends", true, true),
     SOFT_DEPENDS("soft-depends", true, false),
     CONFLICTS("conflicts", false, false),
-    BREAKS("breaks", false, true)
+    BREAKS("breaks", false, true),
 }

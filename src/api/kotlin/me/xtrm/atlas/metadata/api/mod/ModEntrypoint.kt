@@ -1,7 +1,7 @@
 package me.xtrm.atlas.metadata.api.mod
 
 /**
- * An entrypoint for a mod.
+ * A mod's entry point object.
  *
  * @author xtrm
  * @since 0.0.1
@@ -11,7 +11,6 @@ interface ModEntrypoint {
      * The entrypoint's priority.
      */
     val priority: Int
-        get() = 0
 
     /**
      * The entrypoint's class name.
@@ -22,5 +21,4 @@ interface ModEntrypoint {
      * The required adapter for this entrypoint.
      */
     val adapter: String
-        get() = "default"
 }

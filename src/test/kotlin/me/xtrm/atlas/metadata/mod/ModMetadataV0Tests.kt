@@ -1,4 +1,4 @@
-package me.xtrm.atlas.metadata.tests.parser
+package me.xtrm.atlas.metadata.mod
 
 import me.xtrm.atlas.metadata.MetadataParserService
 import me.xtrm.atlas.metadata.api.*
@@ -17,13 +17,13 @@ internal class ModMetadataV0Tests {
     fun `find registered target's parser`() {
         assertNotNull(
             MetadataParserService.findFor(ModMetadata::class),
-            "couldn't find parser for ModMetadata"
+            "couldn't find parser for ModMetadata",
         )
     }
 
     @Test
     fun `throw on unknown target`() {
-        assertThrows<MissingParserException> {
+        assertThrows<ParserException> {
             MetadataParserService.getFor(Supplier::class)
         }
     }
@@ -36,11 +36,14 @@ internal class ModMetadataV0Tests {
                 "dummyData": true
             }
         """.trimIndent()
-        val exception = assertThrows<ParserException> {
-            MetadataParserService.getFor<ModMetadata>()
-                .from(schemaDecl.byteInputStream())
-        }
-        assertNotEquals(exception.error, ParseError.UNKNOWN_SCHEMA)
+
+        assertNotEquals(
+            assertThrows<ParserException> {
+                MetadataParserService.getFor<ModMetadata>()
+                    .from(schemaDecl.byteInputStream())
+            }.type,
+            ParserException.Type.UNKNOWN_SCHEMA
+        )
     }
 
     @Test
@@ -51,10 +54,13 @@ internal class ModMetadataV0Tests {
                 "dummyData": true
             }
         """.trimIndent()
-        val exception = assertThrows<ParserException> {
-            MetadataParserService.getFor<ModMetadata>()
-                .from(schemaDecl.byteInputStream())
-        }
-        assertEquals(exception.error, ParseError.UNKNOWN_SCHEMA)
+
+        assertEquals(
+            assertThrows<ParserException> {
+                MetadataParserService.getFor<ModMetadata>()
+                    .from(schemaDecl.byteInputStream())
+            }.type,
+            ParserException.Type.UNKNOWN_SCHEMA,
+        )
     }
 }
