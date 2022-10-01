@@ -1,7 +1,9 @@
 package me.xtrm.atlas.metadata
 
 import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
-import me.xtrm.atlas.metadata.api.*
+import me.xtrm.atlas.metadata.api.Parser
+import me.xtrm.atlas.metadata.api.ParserException
+import me.xtrm.atlas.metadata.api.ParserService
 import me.xtrm.atlas.metadata.api.mod.ModMetadata
 import me.xtrm.atlas.metadata.mod.ModMetadataV0
 import java.io.ByteArrayInputStream
@@ -36,7 +38,6 @@ object MetadataParserService: ParserService {
                     ParserException.Type.UNKNOWN_SCHEMA,
                     schemaVersion,
                 )
-
 
             try {
                 parser.from(ByteArrayInputStream(byteArray))

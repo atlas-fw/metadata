@@ -63,7 +63,7 @@ interface ModMetadata {
     val entrypoints: Map<String, ModEntrypoint>
 
     /**
-     * @return a [Semver] object.
+     * @return a [Semver] object parsed from [version].
      */
     fun getSemanticVersion(): Semver =
         Semver(this.version)
