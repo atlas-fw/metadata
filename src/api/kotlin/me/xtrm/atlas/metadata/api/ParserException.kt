@@ -6,7 +6,7 @@ package me.xtrm.atlas.metadata.api
  */
 class ParserException(
     val type: Type = Type.UNKNOWN,
-    vararg format: Any?,
+    vararg format: Any,
     cause: Throwable? = null,
 ): Exception(
     type.message.format(*format),

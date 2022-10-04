@@ -9,6 +9,11 @@ package me.xtrm.atlas.metadata.api.mod
 interface ModContact {
     /**
      * The mod's website URL, as a [String].
+     *
+     * If undefined, will default to the first set:
+     * - [repository]
+     * - [discord]
+     * - [issues]
      */
     val website: String?
 
@@ -19,16 +24,18 @@ interface ModContact {
 
     /**
      * The mod's issue tracker URL, as a [String].
+     *
+     * If not defined, will default to `[repository]/issues`.
      */
     val issues: String?
 
     /**
-     * The mod's discord server URL, as a [String].
+     * The mod's discord server **invite identifier**, as a [String].
      */
     val discord: String?
 
     /**
-     * Extra links/information destined to user-consumption.
+     * Extra links/information destined for user-consumption.
      */
     val extras: Map<String, String>
 }

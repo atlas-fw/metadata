@@ -16,6 +16,12 @@ interface ModMetadata {
     val id: String
 
     /**
+     * The mod's version string.
+     * Example: TODO
+     */
+    val version: String
+
+    /**
      * The mod's display name.
      * Example: TODO
      */
@@ -26,12 +32,6 @@ interface ModMetadata {
      * Example: TODO
      */
     val description: String
-
-    /**
-     * The mod's version string.
-     * Example: TODO
-     */
-    val version: String
 
     /**
      * The mod's authors.
@@ -48,9 +48,6 @@ interface ModMetadata {
     /**
      * The mod's licenses.
      * Example: TODO
-     *
-     * May be looked-up in the [ModContact.repository] by leaving this value to
-     * default.
      */
     val licences: List<String>
 

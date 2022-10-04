@@ -9,6 +9,8 @@ package me.xtrm.atlas.metadata.api.mod
 interface ModEntrypoint {
     /**
      * The entrypoint's priority.
+     *
+     * Default value `0`
      */
     val priority: Int
 
@@ -19,6 +21,8 @@ interface ModEntrypoint {
 
     /**
      * The required adapter for this entrypoint.
+     *
+     * Default value: `"default"`
      */
     val adapter: String
 }

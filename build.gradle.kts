@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.net.URL
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
@@ -102,6 +103,13 @@ tasks {
         targetCompatibility = targetVersion
         sourceCompatibility = sourceVersion
     }
+    val configKotlin: KotlinCompile.() -> Unit = {
+        kotlinOptions.jvmTarget = targetVersion
+        // Required for `data object`s
+        kotlinOptions.languageVersion = "1.8"
+    }
+    compileKotlin(configKotlin)
+    compileTestKotlin(configKotlin)
 
     dokkaHtml {
         val moduleFile = File(projectDir, "MODULE.temp.md")

@@ -6,8 +6,6 @@ import me.xtrm.atlas.metadata.api.ParserException
 import me.xtrm.atlas.metadata.api.ParserService
 import me.xtrm.atlas.metadata.api.mod.ModMetadata
 import me.xtrm.atlas.metadata.mod.ModMetadataV0
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
 
 /**
  * !TODO
@@ -16,7 +14,7 @@ import java.io.ByteArrayOutputStream
  * @since 0.0.1
  */
 @Suppress("UNCHECKED_CAST")
-object MetadataParserService: ParserService {
+object MetadataParserService : ParserService {
     override val parserRegistry: Map<Class<*>, Map<Int, Parser<*>>> =
         buildMap {
             put(ModMetadata::class.java, mapOf(0 to ModMetadataV0.Parser))
@@ -26,12 +24,8 @@ object MetadataParserService: ParserService {
         val parsers = parserRegistry[clazz]
             ?: return null
 
-        return Parser { inputStream ->
-            val baos = ByteArrayOutputStream()
-            inputStream.copyTo(baos)
-            val byteArray = baos.toByteArray()
-
-            val map = JACKSON_MAPPER.readValue(byteArray, Map::class.java)
+        return Parser { string ->
+            val map = JACKSON_MAPPER.readValue(string, Map::class.java)
             val schemaVersion = (map["schemaVersion"] as? Int) ?: 0
             val parser = parsers[schemaVersion] as? Parser<T>
                 ?: throw ParserException(
@@ -40,7 +34,7 @@ object MetadataParserService: ParserService {
                 )
 
             try {
-                parser.from(ByteArrayInputStream(byteArray))
+                parser.from(string)
             } catch (exception: MissingKotlinParameterException) {
                 throw ParserException(
                     ParserException.Type.MAPPER_EXCEPTION,
