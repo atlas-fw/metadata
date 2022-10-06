@@ -19,7 +19,7 @@
         }
     ],
     "contact": {
-        "website": "https://github.com/atlas-fw",
+        "website": "https://github.com/atlas-fw/metadata",
         "repository": "https://github.com/atlas-fw/metadata",
         "issues": "https://github.com/atlas-fw/metadata/issues",
         "discord": "8ZZ3TXFCZb",
@@ -28,7 +28,10 @@
         }
     },
     "dependencies": {
-        "_comment": "TODO"
+        "depends": {
+            "java": ">=1.8",
+            "minecraft": ">=1.16.*"
+        }
     },
     "licenses": ["MIT"],
     "entrypoints": {

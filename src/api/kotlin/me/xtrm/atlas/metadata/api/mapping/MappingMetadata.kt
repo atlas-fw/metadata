@@ -1,6 +1,6 @@
 package me.xtrm.atlas.metadata.api.mapping
 
-import com.vdurmont.semver4j.Semver
+import org.semver4j.Semver
 
 /**
  * Base interface for any revision of the mapping metadata scheme.
@@ -13,8 +13,8 @@ interface MappingMetadata {
      * The minimum required Atlas Framework version for this mapping metadata to
      * be used correctly.
      *
-     * Defaults to `null`, meaning no version check will be done by the Atlas
-     * Engine.
+     * Defaults to `null`, meaning no version check will be done by
+     * the Atlas Engine.
      */
     val minFrameworkVersion: Semver?
 

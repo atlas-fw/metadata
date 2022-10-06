@@ -39,7 +39,7 @@ dependencies {
             implementation("org.jetbrains.kotlin", "kotlin-$module", KOTLIN)
         }
 
-        implementation("com.vdurmont", "semver4j", "3.1.0")
+        implementation("org.semver4j", "semver4j", "2.1.1")
         implementation("com.fasterxml.jackson.module", "jackson-module-kotlin", "2.13.4")
 
         dokkaHtmlPlugin("org.jetbrains.dokka", "kotlin-as-java-plugin", Plugins.DOKKA)

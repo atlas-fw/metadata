@@ -48,7 +48,7 @@ class ModMetadataV0Tests {
 
                 with(contact) {
                     mapOf(
-                        website to "https://github.com/atlas-fw",
+                        website to "https://github.com/atlas-fw/metadata",
                         repository to "https://github.com/atlas-fw/metadata",
                         issues to "https://github.com/atlas-fw/metadata/issues",
                         discord to "8ZZ3TXFCZb"
