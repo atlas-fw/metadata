@@ -2,7 +2,7 @@ package me.xtrm.atlas.metadata.mod
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.module.kotlin.readValue
-import me.xtrm.atlas.metadata.JACKSON_MAPPER
+import me.xtrm.atlas.metadata.jackson.OBJECT_MAPPER
 import me.xtrm.atlas.metadata.api.mod.*
 import me.xtrm.atlas.metadata.api.mod.dependency.DependencyType
 import org.semver4j.Semver
@@ -33,7 +33,7 @@ data class ModMetadataV0(
 ) : ModMetadata {
     companion object Parser : BaseParser<ModMetadataV0> {
         override fun from(string: String): ModMetadataV0 =
-            JACKSON_MAPPER.readValue(string)
+            OBJECT_MAPPER.readValue(string)
     }
 }
 

@@ -2,8 +2,6 @@
 
 package me.xtrm.atlas.metadata.api.mod.dependency
 
-import com.fasterxml.jackson.annotation.JsonProperty
-
 /**
  * A dependency's type.
  *
@@ -26,18 +24,17 @@ enum class DependencyType(
      */
     val warns: Boolean,
 ) {
-    // TODO(@lambdagg) make use of the 'key' value as the @JsonProperty by
-    //  default
-
-    @JsonProperty("depends")
     DEPENDS("depends", true, true),
 
-    @JsonProperty("softDepends")
     SOFT_DEPENDS("softDepends", true, false),
 
-    @JsonProperty("conflicts")
     CONFLICTS("conflicts", false, false),
 
-    @JsonProperty("breaks")
-    BREAKS("breaks", false, true),
+    BREAKS("breaks", false, true),;
+
+    companion object {
+        @JvmStatic
+        fun of(key: String?): DependencyType? =
+            values().firstOrNull { it.key == key }
+    }
 }

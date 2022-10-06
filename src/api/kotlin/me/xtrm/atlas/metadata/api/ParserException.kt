@@ -19,8 +19,7 @@ class ParserException(
     enum class Type(val message: String) {
         MISSING_PARSER("No parser available for class '%s'."),
         UNKNOWN_SCHEMA("Unknown schema version '%s'."),
-        @Suppress("UNUSED")
-        READER_EXCEPTION("An exception occurred while reading input."),
+        READER_EXCEPTION("An exception occurred while reading input: '%s'."),
         MAPPER_EXCEPTION("An exception occurred while parsing input."),
         UNKNOWN("An unknown exception occurred."),
     }

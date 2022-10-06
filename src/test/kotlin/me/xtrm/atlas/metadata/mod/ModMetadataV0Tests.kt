@@ -9,7 +9,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 @Testable
-class ModMetadataV0Tests {
+internal class ModMetadataV0Tests {
     @Test
     fun `parse full ModMetadataV0`() {
         val metadataJson =
@@ -85,7 +85,7 @@ class ModMetadataV0Tests {
                 .readText()
 
         assertDoesNotThrow {
-            val metadata = MetadataParserService.getFor<ModMetadata>()
+            /*val metadata = */MetadataParserService.getFor<ModMetadata>()
                 .from(metadataJson)
         }
     }

@@ -1,6 +1,5 @@
-package me.xtrm.atlas.metadata.mod
+package me.xtrm.atlas.metadata
 
-import me.xtrm.atlas.metadata.MetadataParserService
 import me.xtrm.atlas.metadata.api.ParserException
 import me.xtrm.atlas.metadata.api.findFor
 import me.xtrm.atlas.metadata.api.getFor
