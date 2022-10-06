@@ -16,6 +16,7 @@ import me.xtrm.atlas.metadata.api.Parser as BaseParser
  * expect random unnotified changes until V1.
  *
  * @author xtrm
+ * @author lambdagg
  * @since 0.0.1
  */
 data class ModMetadataV0(

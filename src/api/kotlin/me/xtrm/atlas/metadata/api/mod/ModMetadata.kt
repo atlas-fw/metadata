@@ -1,8 +1,7 @@
 package me.xtrm.atlas.metadata.api.mod
 
 import me.xtrm.atlas.metadata.api.mod.dependency.DependencyType
-import org.semver4j.RangesList
-import org.semver4j.Semver
+import org.semver4j.*
 
 /**
  * Aliases the dependency declaration block into a concise type.

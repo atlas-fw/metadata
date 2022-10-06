@@ -1,7 +1,7 @@
 package me.xtrm.atlas.metadata.api.mod
 
 /**
- * Contact Information for a mod.
+ * A mod's contact information object.
  *
  * @author xtrm
  * @since 0.0.1
