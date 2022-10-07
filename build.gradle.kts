@@ -105,7 +105,6 @@ tasks {
     }
     val configKotlin: KotlinCompile.() -> Unit = {
         kotlinOptions.jvmTarget = targetVersion
-        kotlinOptions.freeCompilerArgs += "-Xuse-k2"
     }
     compileKotlin(configKotlin)
     compileTestKotlin(configKotlin)
