@@ -22,20 +22,14 @@ object MetadataParserService : ParserService {
      * @inheritDoc
      */
     override val parserRegistry: Map<Class<*>, Map<Int, Parser<*>>> =
-        buildMap {
-            put(
-                ModMetadata::class.java,
-                mapOf(
-                    0 to ModMetadataV0.Parser
-                )
+        mapOf(
+            ModMetadata::class.java to mapOf(
+                0 to ModMetadataV0.Parser
+            ),
+            MappingMetadata::class.java to mapOf(
+                0 to MappingMetadataV0.Parser
             )
-            put(
-                MappingMetadata::class.java,
-                mapOf(
-                    0 to MappingMetadataV0.Parser
-                )
-            )
-        }
+        )
 
     /**
      * @inheritDoc
