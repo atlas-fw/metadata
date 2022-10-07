@@ -105,8 +105,6 @@ tasks {
     }
     val configKotlin: KotlinCompile.() -> Unit = {
         kotlinOptions.jvmTarget = targetVersion
-        // Required for `data object`s
-        kotlinOptions.languageVersion = "1.8"
         kotlinOptions.freeCompilerArgs += "-Xuse-k2"
     }
     compileKotlin(configKotlin)
@@ -269,12 +267,12 @@ tasks {
 }
 
 // Define the default artifacts' tasks
-val defaultArtifactTasks = arrayOf(
+val defaultArtifactTasks = mutableListOf(
     tasks["sourcesJar"],
     tasks["javadocJar"]
 ).also { arr ->
     additionalSourceSets.forEach { set ->
-        arr.plus(tasks[sourceSets[set].jarTaskName])
+        arr.add(tasks[sourceSets[set].jarTaskName])
     }
 }
 
