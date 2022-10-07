@@ -23,7 +23,7 @@ object RangesListDeserializer : StdDeserializer<RangesList>(
     override fun deserialize(
         parser: JsonParser,
         obj: DeserializationContext,
-    ) = parser.text.let {
+    ): RangesList = parser.text.let {
         if (it.trim().isEmpty()) {
             throw ParserException(
                 ParserException.Type.READER_EXCEPTION,
