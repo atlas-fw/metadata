@@ -13,7 +13,7 @@ internal class ModMetadataV0Tests {
     @Test
     fun `parse full ModMetadataV0`() {
         val metadataJson =
-            javaClass.getResourceAsStream("/modMetadataV0.full.json")!!
+            javaClass.getResourceAsStream("/mod/v0.full.json")!!
                 .bufferedReader()
                 .readText()
 
@@ -22,10 +22,10 @@ internal class ModMetadataV0Tests {
                 .from(metadataJson)
             with(metadata) {
                 mapOf(
-                    id to "mod-identifier",
-                    version to "1.3.2-SNAPSHOT.beta+legacy",
-                    displayName to "Test Mod",
-                    description to "Mod description.",
+                    "mod-identifier" to id,
+                    "1.3.2-SNAPSHOT.beta+legacy" to version.toString(),
+                    "Test Mod" to displayName,
+                    "Mod description." to description,
                 ).forEach(::assertEquals)
 
                 assertEquals(authors.size, 2)
@@ -80,7 +80,7 @@ internal class ModMetadataV0Tests {
     @Test
     fun `parse minimal ModMetadataV0`() {
         val metadataJson =
-            javaClass.getResourceAsStream("/modMetadataV0.mini.json")!!
+            javaClass.getResourceAsStream("/mod/v0.mini.json")!!
                 .bufferedReader()
                 .readText()
 

@@ -107,6 +107,7 @@ tasks {
         kotlinOptions.jvmTarget = targetVersion
         // Required for `data object`s
         kotlinOptions.languageVersion = "1.8"
+        kotlinOptions.freeCompilerArgs += "-Xuse-k2"
     }
     compileKotlin(configKotlin)
     compileTestKotlin(configKotlin)

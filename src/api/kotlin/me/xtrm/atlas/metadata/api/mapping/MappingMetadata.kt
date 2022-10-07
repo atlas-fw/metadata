@@ -1,6 +1,6 @@
 package me.xtrm.atlas.metadata.api.mapping
 
-import org.semver4j.Semver
+import me.xtrm.atlas.metadata.api.VersionRanges
 
 /**
  * Base interface for any revision of the mapping metadata scheme.
@@ -10,13 +10,12 @@ import org.semver4j.Semver
  */
 interface MappingMetadata {
     /**
-     * The minimum required Atlas Framework version for this mapping metadata to
-     * be used correctly.
+     * The version requirement (version range list) of Atlas Framework for
+     * this mapping metadata to be loaded and used correctly.
      *
-     * Defaults to `null`, meaning no version check will be done by
-     * the Atlas Engine.
+     * Defaults to a range where all versions are accepted.
      */
-    val minFrameworkVersion: Semver?
+    val frameworkVersion: VersionRanges
 
     /**
      * The root package containing all mapping classes, for easier naming later
@@ -32,4 +31,13 @@ interface MappingMetadata {
      * representing mapping classes.
      */
     val mappings: List<String>
+
+    /**
+     * Utility field to easily get full mapping classes' path.
+     */
+    val mappingClasses: List<String>
+        get() = run {
+            val prefix = rootPackage?.let { "$it." } ?: ""
+            mappings.map { prefix + it }
+        }
 }

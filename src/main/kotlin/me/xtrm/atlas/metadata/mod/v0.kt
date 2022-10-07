@@ -2,10 +2,10 @@ package me.xtrm.atlas.metadata.mod
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.module.kotlin.readValue
-import me.xtrm.atlas.metadata.jackson.OBJECT_MAPPER
+import me.xtrm.atlas.metadata.api.Version
 import me.xtrm.atlas.metadata.api.mod.*
 import me.xtrm.atlas.metadata.api.mod.dependency.DependencyType
-import org.semver4j.Semver
+import me.xtrm.atlas.metadata.jackson.OBJECT_MAPPER
 import java.util.*
 import me.xtrm.atlas.metadata.api.Parser as BaseParser
 
@@ -22,14 +22,15 @@ import me.xtrm.atlas.metadata.api.Parser as BaseParser
 data class ModMetadataV0(
     override val id: String,
     @JsonProperty("version") val versionString: String = "0.0.0-SNAPSHOT+unspecified",
-    @JsonProperty("semVersion") override val version: Semver = Semver.coerce(versionString),
+    @JsonProperty("semVersion") override val version: Version =
+        Version.parse(versionString),
     override val displayName: String = id,
     override val description: String = "No description provided.",
     override val authors: List<ModAuthorV0> = emptyList(),
     override val contact: ModContactV0 = ModContactV0(),
     override val entrypoints: Map<String, ModEntrypointV0> = emptyMap(),
     override val licences: List<String> = listOf("repo"),
-    override val dependencies: Map<DependencyType, DependencyDeclarations>
+    override val dependencies: Map<DependencyType, DependencyDeclarations> = emptyMap()
 ) : ModMetadata {
     companion object Parser : BaseParser<ModMetadataV0> {
         override fun from(string: String): ModMetadataV0 =

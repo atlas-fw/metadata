@@ -2,7 +2,12 @@
 
 package me.xtrm.atlas.metadata.api
 
+import org.semver4j.RangesList
+import org.semver4j.Semver
 import kotlin.reflect.KClass
+
+typealias Version = Semver
+typealias VersionRanges = RangesList
 
 /**
  * A Kotlin-infied version of [ParserService.findFor]

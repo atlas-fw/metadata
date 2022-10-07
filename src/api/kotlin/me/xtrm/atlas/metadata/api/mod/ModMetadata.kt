@@ -1,7 +1,8 @@
 package me.xtrm.atlas.metadata.api.mod
 
+import me.xtrm.atlas.metadata.api.Version
+import me.xtrm.atlas.metadata.api.VersionRanges
 import me.xtrm.atlas.metadata.api.mod.dependency.DependencyType
-import org.semver4j.*
 
 /**
  * Aliases the dependency declaration block into a concise type.
@@ -11,7 +12,7 @@ import org.semver4j.*
  * @author xtrm
  * @since 0.0.1
  */
-typealias DependencyDeclarations = Map<String, RangesList>
+typealias DependencyDeclarations = Map<String, VersionRanges>
 
 /**
  * Base interface for any revision of the mod metadata scheme.
@@ -27,10 +28,10 @@ interface ModMetadata {
     val id: String
 
     /**
-     * The mod's [sementic version][Semver] object.
+     * The mod's [sementic version][Version] object.
      * Example: TODO
      */
-    val version: Semver
+    val version: Version
 
     /**
      * The mod's display name.
