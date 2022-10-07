@@ -30,7 +30,7 @@ enum class DependencyType(
 
     CONFLICTS("conflicts", false, false),
 
-    BREAKS("breaks", false, true),;
+    BREAKS("breaks", false, true);
 
     companion object {
         @JvmStatic

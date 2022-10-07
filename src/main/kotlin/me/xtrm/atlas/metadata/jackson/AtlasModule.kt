@@ -2,9 +2,13 @@ package me.xtrm.atlas.metadata.jackson
 
 import com.fasterxml.jackson.core.Version
 import com.fasterxml.jackson.databind.Module
-import com.fasterxml.jackson.databind.module.*
+import com.fasterxml.jackson.databind.module.SimpleDeserializers
+import com.fasterxml.jackson.databind.module.SimpleSerializers
 import me.xtrm.atlas.metadata.api.mod.dependency.DependencyType
-import me.xtrm.atlas.metadata.jackson.ser.*
+import me.xtrm.atlas.metadata.jackson.ser.DependencyTypeDeserializer
+import me.xtrm.atlas.metadata.jackson.ser.DependencyTypeSerializer
+import me.xtrm.atlas.metadata.jackson.ser.RangesListDeserializer
+import me.xtrm.atlas.metadata.jackson.ser.RangesListSerializer
 import org.semver4j.RangesList
 
 /**
