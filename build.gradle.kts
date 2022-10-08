@@ -138,6 +138,8 @@ tasks {
             reportUndocumented.set(true)
             suppressObviousFunctions.set(true)
 
+            sourceRoots.from(file("src/api/kotlin"))
+
             // Link the source to the documentation
             sourceLink {
                 localDirectory.set(file("src"))
