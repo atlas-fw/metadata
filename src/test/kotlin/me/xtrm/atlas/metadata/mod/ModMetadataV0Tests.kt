@@ -31,27 +31,27 @@ internal class ModMetadataV0Tests {
                 assertEquals(authors.size, 2)
                 with(authors[0]) {
                     mapOf(
-                        name to "xtrm",
-                        website to "https://xtrm.me/",
-                        mail to "oss@xtrm.me",
-                        uuid.toString() to "7740d6e3-9f20-4381-a56a-060991a1c41c"
+                        "xtrm" to name,
+                        "https://xtrm.me/" to website,
+                        "oss@xtrm.me" to mail,
+                        "7740d6e3-9f20-4381-a56a-060991a1c41c" to uuid.toString(),
                     ).forEach(::assertEquals)
                 }
                 with(authors[1]) {
                     mapOf(
-                        name to "lambdagg",
-                        website to "https://lambdagg.xyz",
-                        mail to "lambda@stardustenterprises.fr",
-                        uuid.toString() to "6e63e818-2268-4db4-92ec-448991ab12f1"
+                        "lambdagg" to name,
+                        "https://lambdagg.xyz" to website,
+                        "lambda@stardustenterprises.fr" to mail,
+                        "6e63e818-2268-4db4-92ec-448991ab12f1" to uuid.toString(),
                     ).forEach(::assertEquals)
                 }
 
                 with(contact) {
                     mapOf(
-                        website to "https://github.com/atlas-fw/metadata",
-                        repository to "https://github.com/atlas-fw/metadata",
-                        issues to "https://github.com/atlas-fw/metadata/issues",
-                        discord to "8ZZ3TXFCZb"
+                        "https://github.com/atlas-fw/metadata" to website,
+                        "https://github.com/atlas-fw/metadata" to repository,
+                        "https://github.com/atlas-fw/metadata/issues" to issues,
+                        "8ZZ3TXFCZb" to discord,
                     ).forEach(::assertEquals)
                     assertEquals(1, extras.size)
                     assertEquals(
@@ -67,9 +67,9 @@ internal class ModMetadataV0Tests {
                     assertEquals(key, "atlas:primary")
                     with(value) {
                         mapOf(
-                            priority to 100,
-                            className to "me.xtrm.atlas.mod.AtlasMod",
-                            adapter to "default"
+                            100 to priority,
+                            "me.xtrm.atlas.mod.AtlasMod" to className,
+                            "default" to adapter,
                         )
                     }
                 }
