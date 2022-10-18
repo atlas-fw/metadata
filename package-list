@@ -1,0 +1,14 @@
+$dokka.format:html-v1
+$dokka.linkExtension:html
+
+module:api
+me.xtrm.atlas.metadata.api
+me.xtrm.atlas.metadata.api.dsl
+me.xtrm.atlas.metadata.api.mapping
+me.xtrm.atlas.metadata.api.mod
+me.xtrm.atlas.metadata.api.mod.dep
+module:parsing
+me.xtrm.atlas.metadata
+me.xtrm.atlas.metadata.jackson
+me.xtrm.atlas.metadata.mapping
+me.xtrm.atlas.metadata.mod
