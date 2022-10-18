@@ -1,19 +1,22 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.net.URL
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
+import java.util.UUID
+
+import org.jetbrains.dokka.gradle.*
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jlleitschuh.gradle.ktlint.KtlintExtension
 
 plugins {
     with(Plugins) {
         // Language Plugins
-        `java-library`
-        id("org.jetbrains.kotlin.jvm") version KOTLIN
+        id("org.jetbrains.kotlin.jvm") version KOTLIN apply false
 
         // Git Repo Information
         id("org.ajoberstar.grgit") version GRGIT
 
         // Code Quality
-        id("org.jlleitschuh.gradle.ktlint") version KTLINT
+        id("org.jlleitschuh.gradle.ktlint") version KTLINT apply false
 
         // Documentation Generation
         id("org.jetbrains.dokka") version DOKKA
@@ -25,316 +28,263 @@ plugins {
     }
 }
 
-// What JVM version should this project compile to
-val targetVersion = "1.8"
-// What JVM version this project is written in
-val sourceVersion = "1.8"
-// Which source-sets to add.
-val additionalSourceSets: Array<String> = arrayOf("api")
-
-// Project Dependencies
-dependencies {
-    with(Dependencies) {
-        kotlinModules.forEach { module ->
-            implementation("org.jetbrains.kotlin", "kotlin-$module", KOTLIN)
-        }
-
-        implementation("org.semver4j", "semver4j", "2.1.1")
-        implementation("com.fasterxml.jackson.module", "jackson-module-kotlin", "2.13.4")
-
-        dokkaHtmlPlugin("org.jetbrains.dokka", "kotlin-as-java-plugin", Plugins.DOKKA)
-
-        testImplementation("org.jetbrains.kotlin", "kotlin-test", KOTLIN)
-    }
-}
-
-// Maven Repositories
-repositories {
-    mavenLocal()
-    mavenCentral()
-
-    Repositories.mavenUrls.forEach(::maven)
-}
-
-group = Coordinates.GROUP
-version = Coordinates.VERSION
-
-// Generate the additional source sets
-additionalSourceSets.forEach(::createSourceSet)
-
-fun createSourceSet(name: String, sourceRoot: String = "src/$name") {
-    sourceSets {
-        val main by sourceSets
-        val test by sourceSets
-
-        val sourceSet = create(name) {
-            java.srcDir("$sourceRoot/kotlin")
-            resources.srcDir("$sourceRoot/resources")
-
-            this.compileClasspath += main.compileClasspath
-            this.runtimeClasspath += main.runtimeClasspath
-        }
-
-        arrayOf(main, test).forEach {
-            it.compileClasspath += sourceSet.output
-            it.runtimeClasspath += sourceSet.output
-        }
-    }
-}
-
 // The latest commit ID
 val buildRevision: String = grgit.log()[0].id ?: "dev"
 
-// Disable unneeded rules
-ktlint {
-    this.disabledRules.addAll(
-        "no-wildcard-imports",
-        "filename"
-    )
+allprojects {
+    with(Coordinates) {
+        project.group = group
+        project.version = version
+    }
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
 }
 
-tasks {
-    test {
-        useJUnitPlatform()
+// Normalizing project version
+val prettyProjectVersion = rootProject.version.toString().run {
+    Regex("(\\d+\\.\\d+\\.\\d+).*").matchEntire(this)
+        ?.run { groupValues[1] }
+        ?: throw Error(
+            "Version '$this' does not match version pattern, e.g. 1.0.0-QUALIFIER"
+        )
+}
+
+subprojects {
+    apply {
+        plugin("java-library")
+        plugin("org.jetbrains.kotlin.jvm")
+
+        plugin("org.jlleitschuh.gradle.ktlint")
+        plugin("org.jetbrains.dokka")
+
+        plugin("signing")
+        plugin("maven-publish")
     }
 
-    // Configure JVM versions
-    compileJava {
-        targetCompatibility = targetVersion
-        sourceCompatibility = sourceVersion
-    }
-    val configKotlin: KotlinCompile.() -> Unit = {
-        kotlinOptions.jvmTarget = targetVersion
-    }
-    compileKotlin(configKotlin)
-    compileTestKotlin(configKotlin)
+    val sourceSets = project.extensions.getByType<SourceSetContainer>()
 
-    dokkaHtml {
-        val moduleFile = File(projectDir, "MODULE.temp.md")
+    dependencies {
+        val implementation by configurations
+        val testImplementation by configurations
 
-        run {
-            // In order to have a description on the rendered docs, we have to have
-            // a file with the # Module thingy in it. That's what we're
-            // automagically creating here.
-
-            doFirst {
-                moduleFile.writeText("# Module ${Coordinates.NAME}\n${Coordinates.DESC}")
+        with(Dependencies) {
+            kotlinModules.forEach { module ->
+                implementation("org.jetbrains.kotlin", "kotlin-$module", KOTLIN)
             }
 
-            doLast {
-                moduleFile.delete()
-            }
-        }
-
-        moduleName.set(Coordinates.NAME)
-
-        dokkaSourceSets.configureEach {
-            displayName.set("${Coordinates.NAME} on ${Coordinates.GIT_HOST}")
-            includes.from(moduleFile.path)
-
-            skipDeprecated.set(false)
-            includeNonPublic.set(false)
-            skipEmptyPackages.set(true)
-            reportUndocumented.set(true)
-            suppressObviousFunctions.set(true)
-
-            sourceRoots.from(file("src/api/kotlin"))
-
-            // Link the source to the documentation
-            sourceLink {
-                localDirectory.set(file("src"))
-                remoteUrl.set(URL("https://${Coordinates.GIT_HOST}/${Coordinates.REPO_ID}/tree/trunk/src"))
-            }
-
-            // External documentation link template
-//            externalDocumentationLink {
-//                url.set(URL("https://javadoc.io/doc/net.java.dev.jna/jna/5.10.0/"))
-//            }
+            implementation("org.semver4j", "semver4j", "2.1.1")
+            dokkaHtmlPlugin("org.jetbrains.dokka", "kotlin-as-java-plugin", Plugins.DOKKA)
+            testImplementation("org.jetbrains.kotlin", "kotlin-test", KOTLIN)
         }
     }
 
-    // The original artifact, we just have to add the API source output and the
-    // LICENSE file.
-    jar {
-        fun normalizeVersion(versionLiteral: String): String {
-            val regex = Regex("(\\d+\\.\\d+\\.\\d+).*")
-            val match = regex.matchEntire(versionLiteral)
-            require(match != null) {
-                "Version '$versionLiteral' does not match version pattern, e.g. 1.0.0-QUALIFIER"
-            }
-            return match.groupValues[1]
-        }
+    val actualJavaVersion = if (JAVA_VERSION <= 10) "1.$JAVA_VERSION" else "$JAVA_VERSION"
 
-        val buildTimeAndDate = OffsetDateTime.now()
-        val buildDate = DateTimeFormatter.ISO_LOCAL_DATE.format(buildTimeAndDate)
-        val buildTime = DateTimeFormatter.ofPattern("HH:mm:ss.SSSZ").format(buildTimeAndDate)
-
-        val javaVersion = System.getProperty("java.version")
-        val javaVendor = System.getProperty("java.vendor")
-        val javaVmVersion = System.getProperty("java.vm.version")
-
-        with(Coordinates) {
-            mapOf(
-                "Created-By" to "$javaVersion ($javaVendor $javaVmVersion)",
-                "Build-Date" to buildDate,
-                "Build-Time" to buildTime,
-                "Build-Revision" to buildRevision,
-
-                "Specification-Title" to project.name,
-                "Specification-Version" to normalizeVersion(project.version.toString()),
-                "Specification-Vendor" to VENDOR,
-
-                "Implementation-Title" to NAME,
-                "Implementation-Version" to VERSION,
-                "Implementation-Vendor" to VENDOR,
-
-                "Bundle-Name" to NAME,
-                "Bundle-Description" to DESC,
-                "Bundle-DocURL" to "https://$GIT_HOST/$REPO_ID",
-                "Bundle-Vendor" to VENDOR,
-                "Bundle-SymbolicName" to "$GROUP.$NAME"
-            ).forEach { (k, v) ->
-                manifest.attributes[k] = v
-            }
-        }
-
-        additionalSourceSets.forEach {
-            from(sourceSets[it].output)
-        }
-        from("LICENSE")
+    configure<JavaPluginExtension> {
+        sourceCompatibility = JavaVersion.valueOf(
+            "VERSION_${actualJavaVersion.replace(".", "_")}"
+        )
+        targetCompatibility = sourceCompatibility
     }
 
-    additionalSourceSets.forEach {
-        // Custom artifact, only including the output of
-        // the source set and the LICENSE file.
-        create(sourceSets[it].jarTaskName, Jar::class) {
+    configure<KtlintExtension> {
+        this.disabledRules.addAll(
+            "no-wildcard-imports",
+            "filename"
+        )
+    }
+
+    tasks {
+        withType<JavaCompile> {
+            sourceCompatibility = actualJavaVersion
+            targetCompatibility = actualJavaVersion
+        }
+
+        withType<KotlinCompile> {
+            kotlinOptions.jvmTarget = actualJavaVersion
+        }
+
+        withType<Test> {
+            useJUnitPlatform()
+        }
+
+        withType<Jar> {
+            archiveBaseName.set("${rootProject.name}.${project.name}")
+
+            val buildTimeAndDate = OffsetDateTime.now()
+            val buildDate = DateTimeFormatter.ISO_LOCAL_DATE.format(buildTimeAndDate)
+            val buildTime = DateTimeFormatter.ofPattern("HH:mm:ss.SSSZ").format(buildTimeAndDate)
+
+            val javaVersion = System.getProperty("java.version")
+            val javaVendor = System.getProperty("java.vendor")
+            val javaVmVersion = System.getProperty("java.vm.version")
+
+            with(Coordinates) {
+                manifest.attributes(
+                    "Name" to group.replace(".", "/") + "/" + project.name + "/",
+
+                    "Created-By" to "$javaVersion ($javaVendor $javaVmVersion)",
+                    "Build-Date" to buildDate,
+                    "Build-Time" to buildTime,
+                    "Build-Revision" to buildRevision,
+
+                    "Specification-Title" to "bus-${project.name}",
+                    "Specification-Version" to prettyProjectVersion,
+                    "Specification-Vendor" to vendor,
+
+                    "Implementation-Title" to "$name-${project.name}",
+                    "Implementation-Version" to buildRevision,
+                    "Implementation-Vendor" to vendor,
+
+                    "Bundle-Name" to "$name-${project.name}",
+                    // the README.md file always contains the module description on its 3rd line.
+                    "Bundle-Description" to projectDir.resolve("README.md").readLines()[2],
+                    "Bundle-DocURL" to gitUrl,
+                    "Bundle-Vendor" to vendor,
+                    "Bundle-SymbolicName" to "$group.${project.name}",
+                )
+            }
+
+            from("LICENSE")
+        }
+
+        // Source artifact, including everything the 'main' does but not compiled.
+        create("sourcesJar", Jar::class) {
             group = "build"
+            archiveClassifier.set("sources")
 
-            archiveClassifier.set(it)
-            from(sourceSets[it].output)
+            from(sourceSets["main"].allSource)
 
+            from("LICENSE")
+        }
+
+        withType<DokkaTask>().configureEach {
+            moduleName.set("${Coordinates.name}-${project.name}")
+        }
+
+        withType<DokkaTaskPartial>().configureEach {
+            moduleName.set(project.name)
+
+            dokkaSourceSets.configureEach {
+                includes.from(projectDir.resolve("README.md"))
+
+                displayName.set("${Coordinates.name}/${moduleName.get()} on ${Coordinates.gitHost}")
+
+                skipDeprecated.set(false)
+                includeNonPublic.set(false)
+                skipEmptyPackages.set(true)
+                reportUndocumented.set(true)
+                suppressObviousFunctions.set(true)
+
+                // Link the source to the documentation
+                sourceLink {
+                    localDirectory.set(file("src"))
+                    remoteUrl.set(
+                        URL(
+                            "${Coordinates.gitUrl}/tree/${Coordinates.mainGitBranch}/${project.name}/src"
+                        )
+                    )
+                }
+
+                // TODO
+                ///**
+                // * @see config.Dokka.externalDocumentations
+                // */
+                //config.Dokka.externalDocumentations.forEach {
+                //    externalDocumentationLink { url.set(URL(it)) }
+                //}
+            }
+        }
+
+        // The Javadoc artifact, containing the Dokka output and the LICENSE file.
+        create("javadocJar", Jar::class) {
+            group = "build"
+            archiveClassifier.set("javadoc")
+
+            val dokkaHtml by getting
+            dependsOn(dokkaHtml)
+
+            from(dokkaHtml)
             from("LICENSE")
         }
     }
 
-    // Source artifact, including everything the 'main' does but not compiled.
-    create("sourcesJar", Jar::class) {
-        group = "build"
+    publishing.publications {
+        create("mavenJava", MavenPublication::class.java) {
+            from(components["java"])
 
-        archiveClassifier.set("sources")
-        from(sourceSets["main"].allSource)
+            groupId = project.group.toString()
+            version = project.version.toString()
 
-        additionalSourceSets.forEach {
-            from(sourceSets[it].allSource)
-        }
+            with(Coordinates) {
+                pom {
+                    name.set(this@with.name)
+                    description.set(this@with.description)
+                    url.set(gitUrl)
 
-        this.manifest.from(jar.get().manifest)
+                    with(Pom) {
+                        licenses {
+                            licenses.forEach {
+                                license {
+                                    name.set(it.name)
+                                    url.set(it.url)
+                                    distribution.set(it.distribution)
+                                }
+                            }
+                        }
 
-        from("LICENSE")
-    }
-
-    // The Javadoc artifact, containing the Dokka output and the LICENSE file.
-    create("javadocJar", Jar::class) {
-        group = "build"
-
-        val dokkaHtml = getByName("dokkaHtml")
-
-        archiveClassifier.set("javadoc")
-        dependsOn(dokkaHtml)
-        from(dokkaHtml)
-
-        from("LICENSE")
-    }
-
-    afterEvaluate {
-        // Task priority
-        val publishToSonatype by getting
-        val closeAndReleaseSonatypeStagingRepository by getting
-
-        closeAndReleaseSonatypeStagingRepository
-            .mustRunAfter(publishToSonatype)
-
-        // Wrapper task since calling both one after the other in IntelliJ
-        // seems to cause some problems.
-        create("releaseToSonatype") {
-            group = "publishing"
-
-            dependsOn(
-                publishToSonatype,
-                closeAndReleaseSonatypeStagingRepository
-            )
-        }
-    }
-}
-
-// Define the default artifacts' tasks
-val defaultArtifactTasks = mutableListOf(
-    tasks["sourcesJar"],
-    tasks["javadocJar"]
-).also { arr ->
-    additionalSourceSets.forEach { set ->
-        arr.add(tasks[sourceSets[set].jarTaskName])
-    }
-}
-
-// Declare the artifacts
-artifacts {
-    defaultArtifactTasks.forEach(::archives)
-}
-
-publishing.publications {
-    // Sets up the Maven integration.
-    create("mavenJava", MavenPublication::class.java) {
-        from(components["java"])
-        defaultArtifactTasks.forEach(::artifact)
-
-        with(Coordinates) {
-            pom {
-                name.set(NAME)
-                description.set(DESC)
-                url.set("https://$GIT_HOST/$REPO_ID")
-
-                with(Pom) {
-                    licenses {
-                        licenses.forEach {
-                            license {
-                                name.set(it.name)
-                                url.set(it.url)
-                                distribution.set(it.distribution)
+                        developers {
+                            developers.forEach {
+                                developer {
+                                    id.set(it.id)
+                                    name.set(it.name)
+                                    email.set(it.email)
+                                }
                             }
                         }
                     }
 
-                    developers {
-                        developers.forEach {
-                            developer {
-                                id.set(it.id)
-                                name.set(it.name)
-                            }
-                        }
+                    scm {
+                        connection.set("scm:git:git://$gitHost/$repoId.git")
+                        developerConnection.set(
+                            "scm:git:ssh://$gitHost/$repoId.git"
+                        )
+                        url.set(gitUrl)
                     }
-                }
-
-                scm {
-                    connection.set("scm:git:git://$GIT_HOST/$REPO_ID.git")
-                    developerConnection.set("scm:git:ssh://$GIT_HOST/$REPO_ID.git")
-                    url.set("https://$GIT_HOST/$REPO_ID")
                 }
             }
-        }
 
-        // Configure the signing extension to sign this Maven artifact.
-        signing {
-            isRequired = project.properties["signing.keyId"] != null
-            sign(this@create)
+            signing {
+                isRequired = project.properties["signing.keyId"] != null
+                sign(this@create)
+            }
         }
     }
+}
+
+tasks.withType<DokkaMultiModuleTask>().configureEach {
+    val moduleFile = File(
+        temporaryDir,
+        "MODULE.${UUID.randomUUID()}.md"
+    ).apply {
+        writeText("# ${Coordinates.name} by ${Coordinates.vendor}\n${Coordinates.description}\n<a href=\"${Coordinates.gitUrl}\">Source</a>")
+    }
+
+    moduleName.set(Coordinates.name)
+    includes.from(moduleFile)
 }
 
 // Configure publishing to Maven Central
 nexusPublishing.repositories.sonatype {
     nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
-    snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
+    snapshotRepositoryUrl.set(
+        uri(
+            "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+        )
+    )
 
     // Skip this step if environment variables NEXUS_USERNAME or NEXUS_PASSWORD aren't set.
     username.set(properties["NEXUS_USERNAME"] as? String ?: return@sonatype)

@@ -1,0 +1,9 @@
+{
+    "schemaVersion": 0,
+    "id": "example-mod",
+    "version": "1.3.2-SNAPSHOT.beta+legacy",
+    "description": "Cool description.",
+    "entrypoints": {
+        "atlas:primary": "me.xtrm.atlas.mod.AtlasMod"
+    }
+}
