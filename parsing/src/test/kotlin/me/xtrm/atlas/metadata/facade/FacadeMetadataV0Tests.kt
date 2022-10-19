@@ -1,9 +1,9 @@
-package me.xtrm.atlas.metadata.mapping
+package me.xtrm.atlas.metadata.facade
 
 import me.xtrm.atlas.metadata.MetadataParserService
 import me.xtrm.atlas.metadata.api.Version
 import me.xtrm.atlas.metadata.api.dsl.getFor
-import me.xtrm.atlas.metadata.api.mapping.MappingMetadata
+import me.xtrm.atlas.metadata.api.facade.FacadeMetadata
 import me.xtrm.atlas.metadata.metadataJson
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.platform.commons.annotation.Testable
@@ -12,13 +12,13 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 @Testable
-internal class MappingMetadataV0Tests {
+internal class FacadeMetadataV0Tests {
     @Test
-    fun `parse full MappingMetadataV0`() {
-        val metadataJson = metadataJson("mapping", "v0", "full")
+    fun `parse full metadata`() {
+        val metadataJson = metadataJson("facades", "v0", "full")
 
         assertDoesNotThrow {
-            val metadata = MetadataParserService.getFor<MappingMetadata>()
+            val metadata = MetadataParserService.getFor<FacadeMetadata>()
                 .from(metadataJson)
 
             println(metadata)
@@ -35,16 +35,16 @@ internal class MappingMetadataV0Tests {
                 )
             )
 
-            assertEquals(2, metadata.mappingClasses.size)
+            assertEquals(2, metadata.facadeClasses.size)
 
             assertEquals(
-                "me.xtrm.atlas.api.mappings.TestMapping",
-                metadata.mappingClasses[0]
+                "me.xtrm.atlas.api.facades.TestFacade",
+                metadata.facadeClasses[0]
             )
 
             assertEquals(
-                "me.xtrm.atlas.api.mappings.subpkg.OtherMappingClass\$SubClass",
-                metadata.mappingClasses[1]
+                "me.xtrm.atlas.api.facades.subpkg.OtherFacade\$SubClass",
+                metadata.facadeClasses[1]
             )
         }
     }

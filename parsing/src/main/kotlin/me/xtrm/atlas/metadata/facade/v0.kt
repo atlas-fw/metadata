@@ -1,9 +1,9 @@
-package me.xtrm.atlas.metadata.mapping
+package me.xtrm.atlas.metadata.facade
 
 import com.fasterxml.jackson.module.kotlin.readValue
 import me.xtrm.atlas.metadata.VERSION_RANGES_ACTUAL_LIST_FIELD
 import me.xtrm.atlas.metadata.api.VersionRanges
-import me.xtrm.atlas.metadata.api.mapping.MappingMetadata
+import me.xtrm.atlas.metadata.api.facade.FacadeMetadata
 import me.xtrm.atlas.metadata.jackson.OBJECT_MAPPER
 import org.semver4j.Semver
 import me.xtrm.atlas.metadata.api.Parser as BaseParser
@@ -18,7 +18,7 @@ object AllAcceptingVersionRanges : VersionRanges() {
 }
 
 /**
- * Iteration 0 of the [MappingMetadata] schema specification.
+ * Iteration 0 of the [FacadeMetadata] schema specification.
  *
  * Note: This version is highly experimental and subject to changes,
  * expect random unnotified changes until V1.
@@ -26,15 +26,15 @@ object AllAcceptingVersionRanges : VersionRanges() {
  * @author xtrm
  * @since 0.0.1
  */
-data class MappingMetadataV0(
+data class FacadeMetadataV0(
     override val frameworkVersion: VersionRanges = AllAcceptingVersionRanges,
 
     override val rootPackage: String? = null,
 
-    override val mappings: List<String> = emptyList(),
-) : MappingMetadata {
-    companion object Parser : BaseParser<MappingMetadataV0> {
-        override fun from(string: String): MappingMetadataV0 =
+    override val facades: List<String> = emptyList(),
+) : FacadeMetadata {
+    companion object Parser : BaseParser<FacadeMetadataV0> {
+        override fun from(string: String): FacadeMetadataV0 =
             OBJECT_MAPPER.readValue(string)
     }
 }

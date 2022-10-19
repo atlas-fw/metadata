@@ -18,7 +18,7 @@ TODO
 TODO
 
 
-# Package me.xtrm.atlas.metadata.mapping
+# Package me.xtrm.atlas.metadata.facade
 
 TODO
 

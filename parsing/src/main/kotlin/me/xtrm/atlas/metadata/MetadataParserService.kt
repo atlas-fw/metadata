@@ -4,10 +4,10 @@ import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
 import me.xtrm.atlas.metadata.api.Parser
 import me.xtrm.atlas.metadata.api.ParserException
 import me.xtrm.atlas.metadata.api.ParserService
-import me.xtrm.atlas.metadata.api.mapping.MappingMetadata
+import me.xtrm.atlas.metadata.api.facade.FacadeMetadata
 import me.xtrm.atlas.metadata.api.mod.ModMetadata
 import me.xtrm.atlas.metadata.jackson.OBJECT_MAPPER
-import me.xtrm.atlas.metadata.mapping.MappingMetadataV0
+import me.xtrm.atlas.metadata.facade.FacadeMetadataV0
 import me.xtrm.atlas.metadata.mod.ModMetadataV0
 
 /**
@@ -26,8 +26,8 @@ object MetadataParserService : ParserService {
             ModMetadata::class.java to mapOf(
                 0 to ModMetadataV0.Parser
             ),
-            MappingMetadata::class.java to mapOf(
-                0 to MappingMetadataV0.Parser
+            FacadeMetadata::class.java to mapOf(
+                0 to FacadeMetadataV0.Parser
             )
         )
 

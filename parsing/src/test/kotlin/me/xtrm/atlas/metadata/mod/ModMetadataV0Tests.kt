@@ -13,7 +13,7 @@ import kotlin.test.assertNotNull
 @Testable
 internal class ModMetadataV0Tests {
     @Test
-    fun `parse full ModMetadataV0`() {
+    fun `parse full metadata`() {
         val metadataJson = metadataJson("mod", "v0", "full")
 
         assertDoesNotThrow {
@@ -82,7 +82,7 @@ internal class ModMetadataV0Tests {
     // TODO: test parse infer ModMetadataV0
 
     @Test
-    fun `parse minimal ModMetadataV0`() {
+    fun `parse minimal metadata`() {
         val metadataJson = metadataJson("mod", "v0", "mini")
 
         assertDoesNotThrow {
